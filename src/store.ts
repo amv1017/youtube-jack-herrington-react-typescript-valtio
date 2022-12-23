@@ -1,3 +1,5 @@
+import { proxy } from 'valtio'
+
 // Standard interface and functions
 export interface Todo {
   id: number
@@ -28,3 +30,34 @@ export const addTodo = (todos: Todo[], text: string): Todo[] => [
     done: false,
   },
 ]
+
+// Valtio implementation
+
+export interface Store {
+  todos: Todo[]
+  newTodo: string
+  addTodo: () => void
+  toggle: (id: number) => void
+  remove: (id: number) => void
+  update: (id: number, text: string) => void
+}
+
+const store = proxy<Store>({
+  todos: [],
+  newTodo: '',
+  addTodo() {
+    store.todos = addTodo(store.todos, store.newTodo)
+    store.newTodo = ''
+  },
+  toggle(id: number) {
+    store.todos = toggleTodo(store.todos, id)
+  },
+  remove(id: number) {
+    store.todos = removeTodo(store.todos, id)
+  },
+  update(id: number, text: string) {
+    store.todos = updateTodo(store.todos, id, text)
+  },
+})
+
+export default store
